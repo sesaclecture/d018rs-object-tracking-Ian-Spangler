@@ -47,12 +47,27 @@ def update_color_value(x, color, is_min):
 
 def load_config(config_path):
     # TODO: LAB-cal.json 파일을 읽어와서 전역 변수에 설정하기
-    pass
+    global l_min, a_min, b_min, l_max, a_max, b_max
+    with open(config_path, "r") as f:
+        data = json.load(f)
+
+    l_min = data["l_min"]
+    l_max = data["l_max"]
+    a_min = data["a_min"]
+    a_max = data["a_max"]
+    b_min = data["b_min"]
+    b_max = data["b_max"]
 
 
 def save_config(config_path):
     # TODO: 현재 설정된 전역 변수를 LAB-cal.json 파일로 저장하기
-    pass
+    save_data = {
+        "l_min": l_min, "l_max": l_max,
+        "a_min": a_min, "a_max": a_max,
+        "b_min": b_min, "b_max": b_max
+    }
+    with open(config_path, "w") as f:
+        json.dump(save_data, f, indent=4)
 
 
 def update_trackbar_positions():
@@ -66,13 +81,22 @@ def update_trackbar_positions():
 
 def find_biggest_contour(mask):
     # TODO: mask 변수 값으로 부터 연결된 객체 중 가장 큰 객체 찾기
-    pass
+    contours, _ = cv2.findContours(
+        mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if contours:
+        largest_contour = max(contours, key=cv2.contourArea)
+        return largest_contour
+    else:
+        return None
 
 
 def draw_boundingbox(image, contour):
     # TODO: 가장 큰 객체에 대해 외접하는 바운딩 박스 그리기, cv2.boundingRect() 사용
     # TODO: Rect: (x y w h) 형태로 좌표 출력, cv2.putText() 사용
-    pass
+    x, y, w, h = cv2.boundingRect(contour)
+    cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    cv2.putText(image, f"Rect: ({x}, {y}, {w}, {h})",
+                (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
 
 if __name__ == "__main__":
